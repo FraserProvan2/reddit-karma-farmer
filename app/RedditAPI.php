@@ -22,16 +22,21 @@ class RedditAPI
 	 */
 	public function __construct()
 	{
+		session()->flush();
+
 		// handle Oauth2
-		$this->access_token = session()->get('access_token')->access_token;
+		$this->access_token = session()->get('access_token');
 		$this->expires = session()->get('expires');
 
 		// create new token
-		if (!isset($this->access_token) || now() < $this->expires) {
-			$this->access_token = $this->getAccessToken()->access_token;
-			$this->expires = Carbon::now()->addSeconds($this->access_token->expires_in);
-
+		if (!$this->access_token || now() < $this->expires) {
+			// access token value
+			$access_token_obj = $this->getAccessToken();
+			$this->access_token = $access_token_obj->access_token;
 			session()->put('access_token', $this->access_token);
+			
+			// handle expires
+			$this->expires = Carbon::now()->addSeconds($access_token_obj->expires_in);
 			session()->put('expires', $this->expires);
 
 			Log::debug('new access token created');
@@ -53,7 +58,7 @@ class RedditAPI
 			'grant_type' => 'password',
 			'username' => config('reddit_api.username'),
 			'password' => config('reddit_api.password')
-		]);
+		], true);
 	}
 
 	/*--------------------------------------------------------------------------
@@ -91,25 +96,28 @@ class RedditAPI
 	 * 
 	 * @param string URL
 	 * @param array post data
-	 * @param boolean user password
+	 * @param boolean is Oauth2 request
 	 * @return object response
 	 */
-	public function curl(string $url, array $post_data = null, boolean $userpwd = null)
+	public function curl(string $url, array $post_data = null, bool $auth_request = null)
 	{
 		Log::debug('curl request: ' . $url . ' ' . json_encode($post_data));
 
 		$ch = curl_init($url);
+	
+		// either us userpwd to get access token, or use access_token for non Oauth2 auth related request
+		if ($auth_request) {
+			curl_setopt($ch, CURLOPT_USERPWD, config('reddit_api.client_id') . ':' . config('reddit_api.secret'));
+		} else {
+			curl_setopt($ch, CURLOPT_HTTPHEADER, array("Authorization: bearer " . $this->access_token));
+		}
+
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 		curl_setopt($ch, CURLOPT_USERAGENT, config('reddit_api.user_agent'));
-		curl_setopt($ch, CURLOPT_HTTPHEADER, array("Authorization: bearer " . $this->access_token));
 
 		if (isset($post_data)) {
 			curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'POST');
 			curl_setopt($ch, CURLOPT_POSTFIELDS, $post_data);
-		}
-
-		if (isset($userpwd)) {
-			curl_setopt($ch, CURLOPT_USERPWD, config('reddit_api.client_id') . ':' . config('reddit_api.secret'));
 		}
 
 		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
