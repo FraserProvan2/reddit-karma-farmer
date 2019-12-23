@@ -1,1 +1,10 @@
-//
+// Fonts
+@import url('https://fonts.googleapis.com/css?family=Nunito');
+
+// Variables
+// @import 'variables';
+
+// Bootstrap
+@import "node_modules/bootswatch/dist/flatly/variables";
+@import '~bootstrap/scss/bootstrap';
+@import "node_modules/bootswatch/dist/flatly/bootswatch";
