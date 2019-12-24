@@ -65,7 +65,7 @@ export default {
       })
 
       // wait
-      let time_to_wait = this.random(1200 * 1000, 3600 * 1000);
+      let time_to_wait = this.random(1200 * 1000, 2700 * 1000); // 20 - 45 mins
       events.$emit("log", {
         status: "info",
         message: `Waiting ${this.miliToSec(
