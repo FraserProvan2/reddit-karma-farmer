@@ -17,12 +17,13 @@ class RepostController extends Controller
         if ($this->attempts > 30) {
             Log::error('RepostController: Failed 30 attempts');
             return response([
-                'Error, failed after 30 attempts'
-            ], 400);
+                'status' => 'error',
+                'message' => 'Failed after 30 attempts'
+            ]);
         }
 
         Log::debug('RepostController: process start attempt #' . $this->attempts);
-        
+
         // create Reddit API client
         $reddit_api = new RedditAPI;
 
@@ -44,15 +45,16 @@ class RepostController extends Controller
         // look for link flair
         $selected_post = null;
         shuffle($results->data->children);
-        foreach($results->data->children as $post) {
-            if (isset($post->data->post_hint) && 
-                $post->data->post_hint === "link" && 
+        foreach ($results->data->children as $post) {
+            if (
+                isset($post->data->post_hint) &&
+                $post->data->post_hint === "link" &&
                 $post->data->domain != "i.redd.it" &&
                 $post->data->domain != "v.redd.it"
             ) {
                 $selected_post = $post->data;
             }
-        };  
+        };
         if (!isset($selected_post)) {
             Log::warning('RepostController: failed to find link...');
             return $this->run(); // rerun if no link found
@@ -69,13 +71,16 @@ class RepostController extends Controller
         ];
         Log::debug('RepostController: cloned data:', $cloned_post);
         $result = $reddit_api->createPost($cloned_post);
-        
+
         if (!$result->success) {
             Log::warning('RepostController: failed to post... here we go again...');
             return $this->run(); // failure is NOT an option
         }
 
         Log::debug('RepostController: post success');
-        return response('success', 200);
+        return response([
+            'status' => 'success',
+            'message' => 'Successfully reposted on attempt ' . $this->attempts
+        ]);
     }
 }
