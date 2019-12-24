@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use RedditAPI;
@@ -13,15 +14,22 @@ class RepostController extends Controller
     public function run()
     {
         $this->attempts++; // keep track of progress
-        Log::debug('process start attempt #' . $this->attempts);
+        if ($this->attempts > 20) {
+            Log::error('RepostController: Failed 20 attempts');
+            return response([
+                'Error, failed after 20 attempts'
+            ], 400);
+        }
 
+        Log::debug('RepostController: process start attempt #' . $this->attempts);
+        
         // create Reddit API client
         $reddit_api = new RedditAPI;
 
         // find a sub reddit
         $sub_reddits = $reddit_api->get('/subreddits/mine/subscriber');
         $selected_subreddit = $sub_reddits->data->children[rand(0, count($sub_reddits->data->children) - 1)]->data->display_name;
-        Log::debug('chosen subreddit: /r/' . $selected_subreddit);
+        Log::debug('RepostController: chosen subreddit: /r/' . $selected_subreddit);
 
         // find a post
         $endpoint = '/r/' . $selected_subreddit . '/search';
@@ -46,10 +54,10 @@ class RepostController extends Controller
             }
         };  
         if (!isset($selected_post)) {
-            Log::warning('failed to find link...');
-            $this->run(); // rerun if no link found
+            Log::warning('RepostController: failed to find link...');
+            return $this->run(); // rerun if no link found
         }
-        Log::debug('chosen post: https://reddit.com' . $selected_post->permalink);
+        Log::debug('RepostController: chosen post: https://reddit.com' . $selected_post->permalink);
 
         // repost 
         $cloned_post = [
@@ -59,15 +67,15 @@ class RepostController extends Controller
             'kind' => 'link',
             // 'uh' => 'f0f0f0f0', 
         ];
-        Log::debug('cloned data: ', $cloned_post);
+        Log::debug('RepostController: cloned data: ', $cloned_post);
         $result = $reddit_api->createPost($cloned_post);
         
         if (!$result->success) {
-            Log::warning('failed to post... Here we go again');
-            $this->run(); // failure is NOT an option
+            Log::warning('RepostController: failed to post... here we go again...');
+            return $this->run(); // failure is NOT an option
         }
 
-        Log::debug('post success');
+        Log::debug('RepostController: post success');
         return response('success', 200);
     }
 }

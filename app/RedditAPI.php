@@ -9,12 +9,8 @@ class RedditAPI
 	| Properties
 	|--------------------------------------------------------------------------*/
 
-	public $access_token;
+	private $access_token;
 	private $expires;
-
-	/*--------------------------------------------------------------------------
-	| Authentication
-	|--------------------------------------------------------------------------*/
 
 	/**
 	 * Construct, handle Auth per request, use cached access token
@@ -22,29 +18,32 @@ class RedditAPI
 	 */
 	public function __construct()
 	{
-		session()->flush();
+		$this->handleAuth();
+	}
 
-		// handle Oauth2
-		$this->access_token = session()->get('access_token');
-		$this->expires = session()->get('expires');
+	/*--------------------------------------------------------------------------
+	| Authentication
+	|--------------------------------------------------------------------------*/
 
-		// create new token
-		if (!$this->access_token || now() < $this->expires) {
-			// access token value
+	private function handleAuth()
+	{
+		// session()->flush();
+
+		// expired or new session
+		if (!session()->get('access_token') || !session()->get('expires') || now() > session()->get('expires')) {
 			$access_token_obj = $this->getAccessToken();
-			$this->access_token = $access_token_obj->access_token;
-			session()->put('access_token', $this->access_token);
-			
-			// handle expires
 			$this->expires = Carbon::now()->addSeconds($access_token_obj->expires_in);
+
+			session()->put('access_token', $access_token_obj->access_token);
 			session()->put('expires', $this->expires);
 
-			Log::debug('new access token created');
-		} 
-		// use valid cached access token
-		else {
-			Log::debug('using cached token');
+			Log::debug('RedditAPI: new access token created');
+		}  else {
+			Log::debug('RedditAPI: using cached access token');
 		}
+	
+		$this->access_token = session()->get('access_token');
+		$this->expires = session()->get('expires');
 	}
 
 	/**
@@ -101,7 +100,7 @@ class RedditAPI
 	 */
 	public function curl(string $url, array $post_data = null, bool $auth_request = null)
 	{
-		Log::debug('curl request: ' . $url . ' ' . json_encode($post_data));
+		Log::debug('RedditAPI: curl : ' . $url . ' ' . json_encode($post_data));
 
 		$ch = curl_init($url);
 	
