@@ -14,10 +14,10 @@ class RepostController extends Controller
     public function run()
     {
         $this->attempts++; // keep track of progress
-        if ($this->attempts > 20) {
-            Log::error('RepostController: Failed 20 attempts');
+        if ($this->attempts > 30) {
+            Log::error('RepostController: Failed 30 attempts');
             return response([
-                'Error, failed after 20 attempts'
+                'Error, failed after 30 attempts'
             ], 400);
         }
 
@@ -67,7 +67,7 @@ class RepostController extends Controller
             'kind' => 'link',
             // 'uh' => 'f0f0f0f0', 
         ];
-        Log::debug('RepostController: cloned data: ', $cloned_post);
+        Log::debug('RepostController: cloned data:', $cloned_post);
         $result = $reddit_api->createPost($cloned_post);
         
         if (!$result->success) {

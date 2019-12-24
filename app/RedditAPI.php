@@ -25,6 +25,11 @@ class RedditAPI
 	| Authentication
 	|--------------------------------------------------------------------------*/
 
+	/**
+	 * Handle 0auth2 access token, use cached if cached and valid
+	 * 
+	 * @return void
+	 */
 	private function handleAuth()
 	{
 		// session()->flush();

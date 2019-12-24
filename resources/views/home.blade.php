@@ -5,9 +5,12 @@
 <div class="row">
     <div class="col-md-4">
         <div class="card">
-            <div class="card-header">Controls</div>
+            {{-- <div class="card-header">Controls</div> --}}
             <div class="card-body">
-                <a href="{{ url('/run') }}" class="btn btn-lg btn-success w-100">Run</a>
+                <h4 class="text-center w-100">Session: <span class="text-primary">00:00<span></h4>
+                <div class="small text-center w-100 my-2">Next Post: <span class="text-primary">00:00<span></div>
+                <a href="{{ url('/run') }}" class="btn btn-lg btn-success w-100">Start</a>
+                <div class="small text-secondary text-center w-100 mt-2">4 Posts</div>
             </div>
         </div>
     </div>
