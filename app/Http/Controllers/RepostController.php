@@ -9,10 +9,20 @@ use RedditAPI;
 
 class RepostController extends Controller
 {
-    public $attempts = 0;
+    private $reddit_api;
+    private $sub_reddits;
+    private $attempts = 0;
 
+    /**
+     * A recursive algorithm to pick a sub reddit, search for a 
+     * post and repost the post. 
+     * 
+     * @return void
+     */
     public function run()
     {
+        $this->reddit_api = new RedditAPI;
+
         $this->attempts++; // keep track of progress
         if ($this->attempts > 30) {
             Log::error('RepostController: Failed 30 attempts');
@@ -21,29 +31,71 @@ class RepostController extends Controller
                 'message' => 'Failed after 30 attempts'
             ]);
         }
-
         Log::debug('RepostController: process start attempt #' . $this->attempts);
 
-        // create Reddit API client
-        $reddit_api = new RedditAPI;
+        $subreddit = $this->findSubReddit();
+        Log::debug('RepostController: chosen subreddit: /r/' . $subreddit);
 
-        // find a sub reddit
-        $sub_reddits = $reddit_api->get('/subreddits/mine/subscriber');
-        $selected_subreddit = $sub_reddits->data->children[rand(0, count($sub_reddits->data->children) - 1)]->data->display_name;
-        Log::debug('RepostController: chosen subreddit: /r/' . $selected_subreddit);
+        $selected_post = $this->findPost($subreddit);
+        if (!$selected_post) {
+            Log::warning('RepostController: failed to find link...');
+            return $this->run(); // rerun if no link found
+        }
+        Log::debug('RepostController: chosen post: https://reddit.com' . $selected_post->permalink);
 
+        $result = $this->repostPost($selected_post);
+        if (!$result->success) {
+            Log::warning('RepostController: failed to post... here we go again...');
+            return $this->run(); // failure is NOT an option
+        }
+        Log::debug('RepostController: post success');
+
+        return response([
+            'status' => 'success',
+            'message' => 'Successfully reposted on attempt #' . $this->attempts
+        ]);
+    }
+
+    /*------------------------------------------------------------------------
+    | Encapsulated logic methods
+    |-------------------------------------------------------------------------*/
+
+    /**
+     * Finds a Subreddit the accounts is subscribed to
+     * 
+     * @return string subreddit name
+     */
+    private function findSubReddit()
+    {
+        if (!isset($this->sub_reddits)) {
+            $this->sub_reddits = $this->reddit_api->get('/subreddits/mine/subscriber');
+        }
+
+        // randomly pick by index
+        $chosen_sub_reddit = $this->sub_reddits->data->children[rand(0, count($this->sub_reddits->data->children) - 1)];
+
+        return $chosen_sub_reddit->data->display_name;
+    }
+
+    /**
+     * Finds a post using subreddit as search query
+     * 
+     * @param string subreddit name
+     * @return object|bool Post Object or false
+     */
+    private function findPost($subreddit)
+    {
         // find a post
-        $endpoint = '/r/' . $selected_subreddit . '/search';
+        $endpoint = '/r/' . $subreddit . '/search';
         $query_string = http_build_query([
-            'q' => $selected_subreddit, // query
+            'q' => $subreddit, // query
             't' => 'year', // time
             'limit' => 100
         ]);
         $request_url = $endpoint . '?' . $query_string;
-        $results = $reddit_api->get($request_url);
+        $results = $this->reddit_api->get($request_url);
 
         // look for link flair
-        $selected_post = null;
         shuffle($results->data->children);
         foreach ($results->data->children as $post) {
             if (
@@ -52,35 +104,30 @@ class RepostController extends Controller
                 $post->data->domain != "i.redd.it" &&
                 $post->data->domain != "v.redd.it"
             ) {
-                $selected_post = $post->data;
+                return $post->data;
             }
         };
-        if (!isset($selected_post)) {
-            Log::warning('RepostController: failed to find link...');
-            return $this->run(); // rerun if no link found
-        }
-        Log::debug('RepostController: chosen post: https://reddit.com' . $selected_post->permalink);
 
-        // repost 
+        return false;
+    }
+
+    /**
+     * Reposts the post
+     * 
+     * @param object 'post' object
+     * @return object response
+     */
+    private function repostPost($post)
+    {
         $cloned_post = [
-            'title' => $selected_post->title,
-            'sr' => $selected_post->subreddit,
-            'url' => $selected_post->url,
+            'title' => $post->title,
+            'sr' => $post->subreddit,
+            'url' => $post->url,
             'kind' => 'link',
             // 'uh' => 'f0f0f0f0', 
         ];
         Log::debug('RepostController: cloned data:', $cloned_post);
-        $result = $reddit_api->createPost($cloned_post);
 
-        if (!$result->success) {
-            Log::warning('RepostController: failed to post... here we go again...');
-            return $this->run(); // failure is NOT an option
-        }
-
-        Log::debug('RepostController: post success');
-        return response([
-            'status' => 'success',
-            'message' => 'Successfully reposted on attempt #' . $this->attempts
-        ]);
+        return $this->reddit_api->createPost($cloned_post);
     }
 }

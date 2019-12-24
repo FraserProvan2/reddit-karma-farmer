@@ -1909,6 +1909,8 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
 /* harmony default export */ __webpack_exports__["default"] = ({
   data: function data() {
     return {
@@ -1939,7 +1941,7 @@ __webpack_require__.r(__webpack_exports__);
           message: response.data.message,
           time: new Date().toLocaleTimeString()
         };
-        events.$emit('log', event);
+        events.$emit("log", event);
 
         if (event.status === "success") {
           _this.posted_this_session = ++_this.posted_this_session;
@@ -1947,7 +1949,11 @@ __webpack_require__.r(__webpack_exports__);
       }); // wait
 
       var time_to_wait = this.random(1800 * 1000, 5400 * 1000);
-      console.log("waiting ".concat(this.miliToSec(time_to_wait), " before reposting"));
+      events.$emit("log", {
+        status: "info",
+        message: "Waiting ".concat(this.miliToSec(time_to_wait), " minutes after THIS attempt"),
+        time: new Date().toLocaleTimeString()
+      });
       setTimeout(function () {
         _this.runtime();
       }, time_to_wait);
@@ -37361,7 +37367,7 @@ var render = function() {
   var _vm = this
   var _h = _vm.$createElement
   var _c = _vm._self._c || _h
-  return _c("div", { staticClass: "card" }, [
+  return _c("div", { staticClass: "card h-100" }, [
     _c("div", { staticClass: "card-header" }, [_vm._v("Logs")]),
     _vm._v(" "),
     _c("div", { staticClass: "card-body" }, [
@@ -37377,7 +37383,8 @@ var render = function() {
                   staticClass: "list-group-item text-white p-2 pl-3",
                   class: {
                     "bg-success": log.status == "success",
-                    "bg-danger": log.status == "error"
+                    "bg-danger": log.status == "error",
+                    "text-dark": log.status == "info"
                   }
                 },
                 [_vm._v(_vm._s(log.log))]
@@ -37385,7 +37392,7 @@ var render = function() {
             }),
             0
           )
-        : _c("div", { staticClass: "small text-muted text-center p-1" }, [
+        : _c("div", { staticClass: "small text-muted text-center p-1 mt-2" }, [
             _vm._v("Nothing to show...")
           ])
     ])

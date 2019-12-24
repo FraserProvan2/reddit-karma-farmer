@@ -18,7 +18,9 @@
         class="btn btn-lg btn-danger text-white w-100"
       >Stop</a>
 
-      <div class="small text-secondary text-center w-100 mt-2">{{ this.posted_this_session }} Post(s)</div>
+      <div
+        class="small text-secondary text-center w-100 mt-2"
+      >{{ this.posted_this_session }} Post(s)</div>
     </div>
   </div>
 </template>
@@ -28,7 +30,7 @@ export default {
   data() {
     return {
       process_running: false,
-      posted_this_session: 0,
+      posted_this_session: 0
     };
   },
 
@@ -42,28 +44,35 @@ export default {
 
       this.runtime(); // start process
     },
+
     runtime() {
       if (!this.process_running) {
         return;
       }
 
-      window.axios.get("/run")
-        .then(response => {
-            let event = {
-              status: response.data.status,
-              message: response.data.message,
-              time: new Date().toLocaleTimeString()
-            }
-            events.$emit('log', event)
+      window.axios.get("/run").then(response => {
+        let event = {
+          status: response.data.status,
+          message: response.data.message,
+          time: new Date().toLocaleTimeString()
+        };
+        events.$emit("log", event);
 
-            if (event.status === "success") {
-              this.posted_this_session = ++this.posted_this_session;
-            }
-        });
+        if (event.status === "success") {
+          this.posted_this_session = ++this.posted_this_session;
+        }
+      });
 
       // wait
       let time_to_wait = this.random(1800 * 1000, 5400 * 1000);
-      console.log(`waiting ${this.miliToSec(time_to_wait)} before reposting`);
+      events.$emit("log", {
+        status: "info",
+        message: `Waiting ${this.miliToSec(
+          time_to_wait
+        )} minutes after THIS attempt`,
+        time: new Date().toLocaleTimeString()
+      });
+
       setTimeout(() => {
         this.runtime();
       }, time_to_wait);
@@ -72,14 +81,16 @@ export default {
     /**
      * Utility Time keeping
      */
+
     random(min, max) {
       return Math.floor(Math.random() * (max - min + 1) + min);
     },
+
     miliToSec(millis) {
       let minutes = Math.floor(millis / 60000);
       let seconds = ((millis % 60000) / 1000).toFixed(0);
       return minutes + ":" + (seconds < 10 ? "0" : "") + seconds;
-    },
+    }
   }
 };
 </script>
