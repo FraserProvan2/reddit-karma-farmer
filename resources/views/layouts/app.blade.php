@@ -15,6 +15,8 @@
             <div class="container">
                 @include('layouts.navbar')
                 @yield('content')
+
+                <div class="small text-muted text-center w-100">Fraser Provan | 2019</div>
             </div>
         </main>
     </div>

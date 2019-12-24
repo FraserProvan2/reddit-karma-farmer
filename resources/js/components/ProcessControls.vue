@@ -1,6 +1,7 @@
 <template>
   <div class="card">
     <div class="card-body">
+      <!-- Timer -->
       <h6 class="text-center w-100">
         Session:
         <span class="text-primary">00:00:00</span>
