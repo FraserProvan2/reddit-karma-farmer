@@ -1,10 +1,10 @@
 <template>
   <div class="card">
     <div class="card-body">
-      <h4 class="text-center w-100">
+      <h6 class="text-center w-100">
         Session:
         <span class="text-primary">00:00:00</span>
-      </h4>
+      </h6>
 
       <!-- Start/Stop -->
       <a

@@ -1854,6 +1854,7 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
 /* harmony default export */ __webpack_exports__["default"] = ({
   data: function data() {
     return {
@@ -37364,25 +37365,29 @@ var render = function() {
     _c("div", { staticClass: "card-header" }, [_vm._v("Logs")]),
     _vm._v(" "),
     _c("div", { staticClass: "card-body" }, [
-      _c(
-        "ul",
-        { staticClass: "list-group" },
-        _vm._l(_vm.logs, function(log, index) {
-          return _c(
-            "li",
-            {
-              key: index,
-              staticClass: "list-group-item text-white p-2 pl-3",
-              class: {
-                "bg-success": log.status == "success",
-                "bg-danger": log.status == "error"
-              }
-            },
-            [_vm._v(_vm._s(log.log))]
+      this.logs.length > 0
+        ? _c(
+            "ul",
+            { staticClass: "list-group" },
+            _vm._l(_vm.logs, function(log, index) {
+              return _c(
+                "li",
+                {
+                  key: index,
+                  staticClass: "list-group-item text-white p-2 pl-3",
+                  class: {
+                    "bg-success": log.status == "success",
+                    "bg-danger": log.status == "error"
+                  }
+                },
+                [_vm._v(_vm._s(log.log))]
+              )
+            }),
+            0
           )
-        }),
-        0
-      )
+        : _c("div", { staticClass: "small text-muted text-center p-1" }, [
+            _vm._v("Nothing to show...")
+          ])
     ])
   ])
 }
@@ -37443,7 +37448,7 @@ var staticRenderFns = [
     var _vm = this
     var _h = _vm.$createElement
     var _c = _vm._self._c || _h
-    return _c("h4", { staticClass: "text-center w-100" }, [
+    return _c("h6", { staticClass: "text-center w-100" }, [
       _vm._v("\n      Session:\n      "),
       _c("span", { staticClass: "text-primary" }, [_vm._v("00:00:00")])
     ])
