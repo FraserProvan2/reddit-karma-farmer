@@ -80,7 +80,7 @@ class RepostController extends Controller
         Log::debug('RepostController: post success');
         return response([
             'status' => 'success',
-            'message' => 'Successfully reposted on attempt ' . $this->attempts
+            'message' => 'Successfully reposted on attempt #' . $this->attempts
         ]);
     }
 }
