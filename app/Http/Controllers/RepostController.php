@@ -24,11 +24,12 @@ class RepostController extends Controller
         $this->reddit_api = new RedditAPI;
 
         $this->attempts++; // keep track of progress
-        if ($this->attempts > 30) {
-            Log::error('RepostController: Failed 30 attempts');
+        $attempts_max = 10;
+        if ($this->attempts > $attempts_max) {
+            Log::error('RepostController: Failed ' . $attempts_max . ' attempts');
             return response([
                 'status' => 'error',
-                'message' => 'Failed after 30 attempts'
+                'message' => 'Failed after ' . $attempts_max . ' attempts'
             ]);
         }
         Log::debug('RepostController: process start attempt #' . $this->attempts);
@@ -44,11 +45,11 @@ class RepostController extends Controller
         Log::debug('RepostController: chosen post: https://reddit.com' . $selected_post->permalink);
 
         $result = $this->repostPost($selected_post);
-        if (!$result->success) {
-            Log::warning('RepostController: failed to post... here we go again...');
+        if (count($result->json->errors) > 0) {
+            Log::warning('RepostController: failed to post: ' . json_encode($result->json->errors));
             return $this->run(); // failure is NOT an option
         }
-        Log::debug('RepostController: post success');
+        Log::debug('RepostController: post success: ' . json_encode($result->json));
 
         return response([
             'status' => 'success',
@@ -70,7 +71,6 @@ class RepostController extends Controller
         if (!isset($this->sub_reddits)) {
             $this->sub_reddits = $this->reddit_api->get('/subreddits/mine/subscriber');
         }
-
         // randomly pick by index
         $chosen_sub_reddit = $this->sub_reddits->data->children[rand(0, count($this->sub_reddits->data->children) - 1)];
 
@@ -120,14 +120,23 @@ class RepostController extends Controller
     private function repostPost($post)
     {
         $cloned_post = [
-            'title' => $post->title,
+            'title' => $this->modifyTitle($post->title),
             'sr' => $post->subreddit,
-            'url' => $post->url,
+            'url' => $post->url . '?utm=facebook.com',
             'kind' => 'link',
             // 'uh' => 'f0f0f0f0', 
         ];
         Log::debug('RepostController: cloned data:', $cloned_post);
 
         return $this->reddit_api->createPost($cloned_post);
+    }
+
+    private function modifyTitle($title)
+    {
+        $title = strtolower($title);
+        $title = ucfirst($title);
+        // $title = str_replace(' ', '  ', $title);
+        
+        return ' ' . $title;
     }
 }

@@ -1949,7 +1949,7 @@ __webpack_require__.r(__webpack_exports__);
         }
       }); // wait
 
-      var time_to_wait = this.random(1800 * 1000, 3600 * 1000);
+      var time_to_wait = this.random(1200 * 1000, 3600 * 1000);
       events.$emit("log", {
         status: "info",
         message: "Waiting ".concat(this.miliToSec(time_to_wait), " minutes after THIS attempt"),

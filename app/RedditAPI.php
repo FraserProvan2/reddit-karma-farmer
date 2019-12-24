@@ -88,7 +88,7 @@ class RedditAPI
 	 */
 	public function createPost(array $post_data)
 	{
-		return $this->curl('https://oauth.reddit.com/api/submit', $post_data);
+		return $this->curl('https://oauth.reddit.com/api/submit?api_type=json', $post_data); //
 	}
 
 	/*--------------------------------------------------------------------------
@@ -108,12 +108,14 @@ class RedditAPI
 		Log::debug('RedditAPI: curl : ' . $url . ' ' . json_encode($post_data));
 
 		$ch = curl_init($url);
-	
+
 		// either us userpwd to get access token, or use access_token for non Oauth2 auth related request
 		if ($auth_request) {
 			curl_setopt($ch, CURLOPT_USERPWD, config('reddit_api.client_id') . ':' . config('reddit_api.secret'));
 		} else {
-			curl_setopt($ch, CURLOPT_HTTPHEADER, array("Authorization: bearer " . $this->access_token));
+			curl_setopt($ch, CURLOPT_HTTPHEADER, [
+				"Authorization: bearer " . $this->access_token,
+			]);
 		}
 
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
