@@ -62,10 +62,10 @@ export default {
         if (event.status === "success") {
           this.posted_this_session = ++this.posted_this_session;
         }
-      });
+      })
 
       // wait
-      let time_to_wait = this.random(1800 * 1000, 5400 * 1000);
+      let time_to_wait = this.random(1800 * 1000, 3600 * 1000);
       events.$emit("log", {
         status: "info",
         message: `Waiting ${this.miliToSec(
