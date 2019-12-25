@@ -1916,7 +1916,8 @@ __webpack_require__.r(__webpack_exports__);
   data: function data() {
     return {
       process_running: false,
-      posted_this_session: 0
+      posted_this_session: 0,
+      time_to_wait: 0
     };
   },
   methods: {
@@ -1932,33 +1933,36 @@ __webpack_require__.r(__webpack_exports__);
     runtime: function runtime() {
       var _this = this;
 
+      // randomly choose wait time
+      this.time_to_wait = this.random(1200 * 1000, 2100 * 1000); // 20 - 35 mins
+
       if (!this.process_running) {
         return;
       }
 
       window.axios.get("/run").then(function (response) {
-        var event = {
+        // update posts this turn
+        if (response.data.status === "success") {
+          _this.posted_this_session = ++_this.posted_this_session;
+        } // log post success
+
+
+        events.$emit("log", {
           status: response.data.status,
           message: response.data.message,
           time: new Date().toLocaleTimeString()
-        };
-        events.$emit("log", event);
+        }); // log waiting time
 
-        if (event.status === "success") {
-          _this.posted_this_session = ++_this.posted_this_session;
-        }
+        events.$emit("log", {
+          status: "info",
+          message: "Waiting for ".concat(_this.miliToSec(_this.time_to_wait)),
+          time: new Date().toLocaleTimeString()
+        });
       }); // wait
 
-      var time_to_wait = this.random(1200 * 1000, 2700 * 1000); // 20 - 45 mins
-
-      events.$emit("log", {
-        status: "info",
-        message: "Waiting ".concat(this.miliToSec(time_to_wait), " minutes after THIS attempt"),
-        time: new Date().toLocaleTimeString()
-      });
       setTimeout(function () {
         _this.runtime();
-      }, time_to_wait);
+      }, this.time_to_wait);
     },
 
     /**

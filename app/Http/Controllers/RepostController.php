@@ -49,7 +49,7 @@ class RepostController extends Controller
             Log::warning('RepostController: failed to post: ' . json_encode($result->json->errors));
             return $this->run(); // failure is NOT an option
         }
-        Log::debug('RepostController: post success: ' . json_encode($result->json));
+        Log::debug('RepostController: post success: ' . json_encode($result->json->data->url));
 
         return response([
             'status' => 'success',

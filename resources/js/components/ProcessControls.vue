@@ -31,7 +31,8 @@ export default {
   data() {
     return {
       process_running: false,
-      posted_this_session: 0
+      posted_this_session: 0,
+      time_to_wait: 0
     };
   },
 
@@ -47,36 +48,38 @@ export default {
     },
 
     runtime() {
+      // randomly choose wait time
+      this.time_to_wait = this.random(1200 * 1000, 2100 * 1000); // 20 - 35 mins
+
       if (!this.process_running) {
         return;
       }
 
       window.axios.get("/run").then(response => {
-        let event = {
+        // update posts this turn
+        if (response.data.status === "success") {
+          this.posted_this_session = ++this.posted_this_session;
+        }
+
+        // log post success
+        events.$emit("log", {
           status: response.data.status,
           message: response.data.message,
           time: new Date().toLocaleTimeString()
-        };
-        events.$emit("log", event);
+        });
 
-        if (event.status === "success") {
-          this.posted_this_session = ++this.posted_this_session;
-        }
-      })
-
-      // wait
-      let time_to_wait = this.random(1200 * 1000, 2700 * 1000); // 20 - 45 mins
-      events.$emit("log", {
-        status: "info",
-        message: `Waiting ${this.miliToSec(
-          time_to_wait
-        )} minutes after THIS attempt`,
-        time: new Date().toLocaleTimeString()
+        // log waiting time
+        events.$emit("log", {
+          status: "info",
+          message: `Waiting for ${this.miliToSec(this.time_to_wait)}`,
+          time: new Date().toLocaleTimeString()
+        });
       });
 
+      // wait
       setTimeout(() => {
         this.runtime();
-      }, time_to_wait);
+      }, this.time_to_wait);
     },
 
     /**
