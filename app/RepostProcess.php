@@ -133,7 +133,6 @@ class RepostProcess
   | Helper functions
   |-------------------------------------------------------------------------*/
 
-
     /**
      * Shuffle posts array 
      * 

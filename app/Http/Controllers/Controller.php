@@ -18,11 +18,19 @@ class Controller extends BaseController
         $this->middleware('auth');
     }
 
+    /**
+     * Load UI
+     * 
+     */
     public function loadUI() 
     {
         return view('home');
     }
 
+    /**
+     * Run repost bot
+     * 
+     */
     public function runBot()
     {
         $bot = new RepostProcess();
