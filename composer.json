@@ -40,7 +40,8 @@
             "database/factories"
         ],
         "files": [
-            "app/RedditAPI.php"
+            "app/RedditAPI.php",
+            "app/RepostProcess.php"
         ]
     },
     "autoload-dev": {

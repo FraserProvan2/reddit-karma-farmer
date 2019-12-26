@@ -1,13 +1,11 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App;
 
-use Exception;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
-use RedditAPI;
+use App\RedditAPI;
 
-class RepostController extends Controller
+class RepostProcess
 {
     private $reddit_api;
     private $sub_reddits;
@@ -24,7 +22,7 @@ class RepostController extends Controller
         $this->reddit_api = new RedditAPI;
 
         $this->attempts++; // keep track of progress
-        $attempts_max = 10;
+        $attempts_max = 15;
         if ($this->attempts > $attempts_max) {
             Log::error('RepostController: Failed ' . $attempts_max . ' attempts');
             return response([
@@ -58,8 +56,8 @@ class RepostController extends Controller
     }
 
     /*------------------------------------------------------------------------
-    | Encapsulated logic methods
-    |-------------------------------------------------------------------------*/
+  | Encapsulated logic methods
+  |-------------------------------------------------------------------------*/
 
     /**
      * Finds a Subreddit the accounts is subscribed to
@@ -83,27 +81,26 @@ class RepostController extends Controller
      * @param string subreddit name
      * @return object|bool Post Object or false
      */
-    private function findPost($subreddit)
+    private function findPost(string $subreddit)
     {
+        $sites = ['imgur.com', 'gfycat.com'];
+
         // find a post
         $endpoint = '/r/' . $subreddit . '/search';
         $query_string = http_build_query([
-            'q' => $subreddit, // query
+            'q' => 'site:' . $sites[rand(0, count($sites) - 1)], // search by link referer
             't' => 'year', // time
-            'limit' => 100
+            'limit' => 100,
+            'type' => 'link',
+            'restrict_sr' => 1
         ]);
         $request_url = $endpoint . '?' . $query_string;
         $results = $this->reddit_api->get($request_url);
 
         // look for link flair
-        shuffle($results->data->children);
+        $this->shufflePosts($results->data->children);
         foreach ($results->data->children as $post) {
-            if (
-                isset($post->data->post_hint) &&
-                $post->data->post_hint === "link" &&
-                $post->data->domain != "i.redd.it" &&
-                $post->data->domain != "v.redd.it"
-            ) {
+            if (isset($post->data->post_hint) && $post->data->post_hint === "link") {
                 return $post->data;
             }
         };
@@ -117,26 +114,69 @@ class RepostController extends Controller
      * @param object 'post' object
      * @return object response
      */
-    private function repostPost($post)
+    private function repostPost(object $post)
     {
         $cloned_post = [
             'title' => $this->modifyTitle($post->title),
             'sr' => $post->subreddit,
-            'url' => $post->url . '?utm=facebook.com',
+            'url' => $this->webifyUrl($post->url) . '?utm=facebook.com',
             'kind' => 'link',
             // 'uh' => 'f0f0f0f0', 
         ];
+
         Log::debug('RepostController: cloned data:', $cloned_post);
 
         return $this->reddit_api->createPost($cloned_post);
     }
 
-    private function modifyTitle($title)
+    /*------------------------------------------------------------------------
+  | Helper functions
+  |-------------------------------------------------------------------------*/
+
+
+    /**
+     * Shuffle posts array 
+     * 
+     * @param array posts
+     * @return array shuffled posts
+     */
+    private function shufflePosts(array $posts)
+    {
+        for ($roll = rand(1, 4); $roll > 0; $roll--) {
+            $shuffled_posts = shuffle($posts);
+        }
+
+        return $shuffled_posts;
+    }
+
+    /**
+     * Modify title in order to avoid duplication checks
+     * 
+     * @param string title
+     * @return string modified title
+     */
+    private function modifyTitle(string $title)
     {
         $title = strtolower($title);
         $title = ucfirst($title);
         // $title = str_replace(' ', '  ', $title);
-        
+
         return ' ' . $title;
+    }
+
+    /**
+     * Add 'wwww' to url if not there
+     * 
+     * @param string url
+     * @return string modified url
+     */
+    private function webifyUrl(string $url)
+    {
+        if (!strpos($url, 'www')) {
+            $exploded_url = explode('//', $url);
+            return $exploded_url[0] . '//www.' . $exploded_url[1];
+        }
+
+        return $url;
     }
 }

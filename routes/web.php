@@ -12,10 +12,7 @@ Route::post('logout', 'Auth\LoginController@logout')->name('logout');
 | Web App Navigation Routes
 |-------------------------------------------------------------------------*/
 
-Route::get('/home', function() {
-  return view('home');
-})->middleware('auth');
-
+Route::get('/home', 'controller@loadUI');
 Route::get('/', function() {
   return redirect('/home');
 });
@@ -24,4 +21,4 @@ Route::get('/', function() {
 | Runtime Routes
 |-------------------------------------------------------------------------*/
 
-Route::get('/run', 'RepostController@run')->middleware('auth');
+Route::get('/run', 'controller@runBot');
