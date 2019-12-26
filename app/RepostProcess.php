@@ -119,7 +119,7 @@ class RepostProcess
         $cloned_post = [
             'title' => $this->modifyTitle($post->title),
             'sr' => $post->subreddit,
-            'url' => $this->webifyUrl($post->url) . '?utm=facebook.com',
+            'url' => $this->webifyUrl($post->url),
             'kind' => 'link',
             // 'uh' => 'f0f0f0f0', 
         ];
@@ -176,6 +176,6 @@ class RepostProcess
             return $exploded_url[0] . '//www.' . $exploded_url[1];
         }
 
-        return $url;
+        return $url . '?utm=rb-23';
     }
 }
