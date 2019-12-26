@@ -22,7 +22,7 @@ class RepostProcess
         $this->reddit_api = new RedditAPI;
 
         $this->attempts++; // keep track of progress
-        $attempts_max = 15;
+        $attempts_max = 20;
         if ($this->attempts > $attempts_max) {
             Log::error('RepostController: Failed ' . $attempts_max . ' attempts');
             return response([
@@ -119,7 +119,7 @@ class RepostProcess
         $cloned_post = [
             'title' => $this->modifyTitle($post->title),
             'sr' => $post->subreddit,
-            'url' => $this->webifyUrl($post->url) . '?utm=facebook.com',
+            'url' => $this->webifyUrl($post->url) . '?utm=rb-23',
             'kind' => 'link',
             // 'uh' => 'f0f0f0f0', 
         ];
