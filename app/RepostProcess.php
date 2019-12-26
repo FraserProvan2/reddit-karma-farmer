@@ -22,7 +22,7 @@ class RepostProcess
         $this->reddit_api = new RedditAPI;
 
         $this->attempts++; // keep track of progress
-        $attempts_max = 15;
+        $attempts_max = 20;
         if ($this->attempts > $attempts_max) {
             Log::error('RepostController: Failed ' . $attempts_max . ' attempts');
             return response([
