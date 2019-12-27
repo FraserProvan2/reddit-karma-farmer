@@ -40,9 +40,9 @@ See [Laradock Documentation](https://laradock.io/documentation/#create-multiple-
 ##### Finally
 In your browser of choice go to `127.0.0.1` and login.
 
-Deafult login details are (Can be edited in `database/seeds/UsersTableSeeder.php`):<br />
-    * Email `user@email.com`<br />
-    * Password `getmesomekarma`
+Deafult login details are (Can be edited in `database/seeds/UsersTableSeeder.php`):
+* Email `user@email.com`
+* Password `getmesomekarma`
    
 ### Testing
 Run `make test` to run PHPUnit tests.
