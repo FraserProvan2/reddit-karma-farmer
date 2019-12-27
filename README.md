@@ -15,7 +15,7 @@ This repo uses [Laradock](https://laradock.io/) for local development.
 
 ```sql
 CREATE DATABASE IF NOT EXISTS `reddit_bot` COLLATE ‘utf8_general_ci’;
-GRANT ALL ON `reddit_bot`.* TO ‘default’@‘%’;
+GRANT ALL ON `reddit_bot`.* TO 'default'@'%';
 ```
 
 To test run `php artisan migrate:fresh --seed` inside the `laradock_workspace` container, if migration success the DB connection has been established.

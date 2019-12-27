@@ -56,8 +56,8 @@ class RepostProcess
     }
 
     /*------------------------------------------------------------------------
-  | Encapsulated logic methods
-  |-------------------------------------------------------------------------*/
+    | Encapsulated logic methods
+    |-------------------------------------------------------------------------*/
 
     /**
      * Finds a Subreddit the accounts is subscribed to
@@ -158,24 +158,7 @@ class RepostProcess
     {
         $title = strtolower($title);
         $title = ucfirst($title);
-        // $title = str_replace(' ', '  ', $title);
 
         return ' ' . $title;
-    }
-
-    /**
-     * Add 'wwww' to url if not there
-     * 
-     * @param string url
-     * @return string modified url
-     */
-    private function webifyUrl(string $url)
-    {
-        if (!strpos($url, 'www')) {
-            $exploded_url = explode('//', $url);
-            return $exploded_url[0] . '//www.' . $exploded_url[1];
-        }
-
-        return $url;
     }
 }
