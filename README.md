@@ -2,7 +2,7 @@
 
 Simple algorithm that searches for old posts, modifies to avoid duplication detection, and reposts for that sweet karma. Starting/Stopping can be operated by a simple UI. The algorithm will run once every 20-35 minutes. Built with Laravel 6/Vue.js.
 
-![showcase](https://raw.githubusercontent.com/FraserProvan2/reddit-karma-farmer/master/public/img/showcase.png?token=AGCASLOMF2X7NTK2ZYYZGOC6AYRQS)
+![showcase](https://github.com/FraserProvan2/reddit-karma-farmer/blob/master/public/img/showcase.png)
 
 ### Installation
 1. Clone repository.
@@ -35,13 +35,13 @@ GRANT ALL ON `reddit_bot`.* TO 'default'@'%';
 
 To test run `php artisan migrate:fresh --seed` inside the `laradock_workspace` container, if migration success the DB connection has been established.
 
-See [Laradock Documentation](https://laradock.io/documentation/#create-multiple-databases-mysql) for furthur help. 
+See [Laradock Documentation](https://laradock.io/documentation/#create-multiple-databases-mysql) for further help. 
 
 ##### Finally
 In your browser of choice go to `127.0.0.1` and login.
 
-Deafult login details are (Can be edited in `database/seeds/UsersTableSeeder.php`):
-    * Email `user@email.com`
+Deafult login details are (Can be edited in `database/seeds/UsersTableSeeder.php`):<br />
+    * Email `user@email.com`<br />
     * Password `getmesomekarma`
    
 ### Testing
