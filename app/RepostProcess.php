@@ -119,7 +119,7 @@ class RepostProcess
         $cloned_post = [
             'title' => $this->modifyTitle($post->title),
             'sr' => $post->subreddit,
-            'url' => $this->webifyUrl($post->url) . '?utm=rb-23',
+            'url' => $this->webifyUrl($post->url) . '?utm=rkf-23',
             'kind' => 'link',
             // 'uh' => 'f0f0f0f0', 
         ];
