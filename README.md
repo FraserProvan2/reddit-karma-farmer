@@ -1,3 +1,7 @@
+# Reddit karma farmer
+
+Simple algorithm that searches for old posts, modifies to avoid duplication detection, and reposts for that sweet karma. Starting/Stopping can be operated by a simple UI. The algorithm will run once every 20-35 minutes. Built with Laravel 6/Vue.js.
+
 ### Installation
 This repo uses [Laradock](https://laradock.io/) for local development.
 
