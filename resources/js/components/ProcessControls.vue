@@ -4,7 +4,7 @@
       <!-- Timer -->
       <h6 class="text-center w-100">
         Session:
-        <span class="text-primary">00:00:00</span>
+        <span id="session_timer" class="text-primary">00:00:00</span>
       </h6>
 
       <!-- Start/Stop -->
@@ -27,6 +27,9 @@
 </template>
 
 <script>
+import Timer from "easytimer.js";
+const timer = new Timer();
+
 export default {
   data() {
     return {
@@ -36,12 +39,23 @@ export default {
     };
   },
 
+  mounted() {
+    // setup timer
+    timer.addEventListener("secondsUpdated", function(e) {
+      $("#session_timer").html(timer.getTimeValues().toString());
+    });
+  },
+
   methods: {
     toggleProccessRunning() {
       this.process_running = !this.process_running;
 
       if (!this.process_running) {
         this.posted_this_session = 0; // reset post count
+        timer.pause();
+      } else {
+        timer.reset();
+        timer.start();
       }
 
       this.runtime(); // start process
@@ -83,7 +97,7 @@ export default {
     },
 
     /**
-     * Utility Time keeping
+     * Utility
      */
 
     random(min, max) {

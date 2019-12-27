@@ -24,6 +24,7 @@
         "vue-template-compiler": "^2.6.10"
     },
     "dependencies": {
-        "bootswatch": "^4.4.1"
+        "bootswatch": "^4.4.1",
+        "easytimer.js": "^4.1.1"
     }
 }
