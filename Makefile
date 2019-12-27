@@ -34,6 +34,3 @@ clear_cache:
 	php artisan route:cache
 	php artisan config:clear
 	php artisan view:clear
-
-test:
-	vendor/bin/phpunit 
