@@ -34,3 +34,13 @@ GRANT ALL ON `reddit_bot`.* TO ‘default’@‘%’;
 To test run `php artisan migrate:fresh --seed` inside the `laradock_workspace` container, if migration success the DB connection has been established.
 
 See [Laradock Documentation](https://laradock.io/documentation/#create-multiple-databases-mysql) for furthur help. 
+
+##### Finally
+In your browser of choice go to `127.0.0.1` and login.
+
+Deafult login details are (Can be edited in `database/seeds/UsersTableSeeder.php`):
+    * Email `user@email.com`
+    * Password `getmesomekarma`
+   
+### Testing
+Run `make test` to run PHPUnit tests.
