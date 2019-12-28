@@ -22,7 +22,7 @@ class RepostProcess
         $this->reddit_api = new RedditAPI;
 
         $this->attempts++; // keep track of progress
-        $attempts_max = 20;
+        $attempts_max = 30;
         if ($this->attempts > $attempts_max) {
             Log::error('RepostController: Failed ' . $attempts_max . ' attempts');
             return response([
@@ -88,16 +88,18 @@ class RepostProcess
         // find a post
         $endpoint = '/r/' . $subreddit . '/search';
         $query_string = http_build_query([
-            'q' => 'site:' . $sites[rand(0, count($sites) - 1)], // search by link referer
-            't' => 'year', // time
+            'q' => 'site:' . $sites[rand(0, count($sites) - 1)] . ' r',
+            't' => 'all', // time
+            'sort' => 'top',
             'limit' => 100,
             'type' => 'link',
-            'restrict_sr' => 1
+            'restrict_sr' => 1,
         ]);
         $request_url = $endpoint . '?' . $query_string;
         $results = $this->reddit_api->get($request_url);
 
         // look for link flair
+        $this->shufflePosts($results->data->children);
         $this->shufflePosts($results->data->children);
         foreach ($results->data->children as $post) {
             if (isset($post->data->post_hint) && $post->data->post_hint === "link") {
