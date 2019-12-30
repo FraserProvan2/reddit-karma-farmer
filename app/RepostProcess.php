@@ -73,13 +73,15 @@ class RepostProcess
         }
         // randomly pick by index
         $chosen_sub_reddit = $this->sub_reddits->data->children[rand(0, count($this->sub_reddits->data->children) - 1)];
-        
+        $chosen_sub_reddit_name = $chosen_sub_reddit->data->display_name;
+
         // retry if ignored subreddit is chosen
-        if (in_array($chosen_sub_reddit, $ignored_subreddits)) {
+        if (in_array($chosen_sub_reddit_name, $ignored_subreddits)) {
+            Log::debug('RepostController: illegal subreddit found (' . $chosen_sub_reddit_name . '), retrying');
             return $this->findSubReddit();
         }
 
-        return $chosen_sub_reddit->data->display_name;
+        return $chosen_sub_reddit_name;
     }
 
     /**
@@ -150,7 +152,7 @@ class RepostProcess
      */
     private function shufflePosts(array $posts)
     {
-        for ($roll = rand(1, 4); $roll > 0; $roll--) {
+        for ($roll = rand(1, 15); $roll > 0; $roll--) {
             $shuffled_posts = shuffle($posts);
         }
 
