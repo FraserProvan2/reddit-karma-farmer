@@ -77,7 +77,7 @@ class RepostProcess
 
         // retry if ignored subreddit is chosen
         if (in_array($chosen_sub_reddit_name, $ignored_subreddits)) {
-            Log::debug('RepostController: illegal subreddit found (' . $chosen_sub_reddit_name . '), retrying');
+            Log::debug('RepostController: illegal subreddit chosen (/r/' . $chosen_sub_reddit_name . '), rechoosing');
             return $this->findSubReddit();
         }
 
