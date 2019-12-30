@@ -22,7 +22,7 @@ class RepostProcess
         $this->reddit_api = new RedditAPI;
 
         $this->attempts++; // keep track of progress
-        $attempts_max = 30;
+        $attempts_max = 20;
         if ($this->attempts > $attempts_max) {
             Log::error('RepostController: Failed ' . $attempts_max . ' attempts');
             return response([
@@ -66,11 +66,18 @@ class RepostProcess
      */
     private function findSubReddit()
     {
+        $ignored_subreddits = ['PopularClub'];
+
         if (!isset($this->sub_reddits)) {
             $this->sub_reddits = $this->reddit_api->get('/subreddits/mine/subscriber');
         }
         // randomly pick by index
         $chosen_sub_reddit = $this->sub_reddits->data->children[rand(0, count($this->sub_reddits->data->children) - 1)];
+        
+        // retry if ignored subreddit is chosen
+        if (in_array($chosen_sub_reddit, $ignored_subreddits)) {
+            return $this->findSubReddit();
+        }
 
         return $chosen_sub_reddit->data->display_name;
     }
@@ -88,7 +95,7 @@ class RepostProcess
         // find a post
         $endpoint = '/r/' . $subreddit . '/search';
         $query_string = http_build_query([
-            'q' => 'site:' . $sites[rand(0, count($sites) - 1)] . ' r',
+            'q' => 'site:' . $sites[rand(0, count($sites) - 1)] . ' ' . $this->randomLetter(),
             't' => 'all', // time
             'sort' => 'top',
             'limit' => 100,
@@ -162,5 +169,20 @@ class RepostProcess
         $title = ucfirst($title);
 
         return ' ' . $title;
+    }
+
+    /**
+     * Gets random letter from alphabet
+     * 
+     * @return string letter
+     */
+    private function randomLetter()
+    {
+        $letters = str_split('abcdefghijklmnopqrstuvwxyz');
+        
+        $chosen_letter = $letters[(rand(0, 25))];
+        Log::debug('RepostController: chosen letter: ' . $chosen_letter);
+
+        return $chosen_letter;
     }
 }
